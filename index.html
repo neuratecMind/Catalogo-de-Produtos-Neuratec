@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuratec • Catálogo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neura-primary: #6b7280;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 50%, #1f2937 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.35) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.05);
+        }
+
+        .gray-header {
+            background: linear-gradient(to right, #6b7280, #374151, #111827);
+        }
+
+        /* === PRODUCT CARDS === */
+        .product-card {
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.18);
+        }
+        .product-image-container {
+            background: #f3f4f6;
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* === PLACEHOLDER IMAGE === */
+        .img-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            color: #9ca3af;
+            font-size: 13px;
+            gap: 8px;
+        }
+        .img-placeholder svg {
+            width: 40px;
+            height: 40px;
+            opacity: 0.5;
+        }
+
+        /* === HAMBURGER MENU === */
+        .hamburger-menu {
+            position: fixed;
+            top: 72px;
+            left: 20px;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(20px);
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            min-width: 260px;
+            z-index: 9999;
+            overflow: hidden;
+            transform-origin: top left;
+            animation: menuPop 0.2s ease-out;
+        }
+        @keyframes menuPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .hamburger-menu a, .hamburger-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 15px 24px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #374151;
+            transition: background 0.15s, color 0.15s;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .hamburger-menu a:last-child, .hamburger-menu button:last-child { border-bottom: none; }
+        .hamburger-menu a:hover, .hamburger-menu button:hover {
+            background: #f1f5f9;
+            color: #111827;
+        }
+        .hamburger-menu .menu-active {
+            color: #374151;
+            font-weight: 600;
+            background: #f8fafc;
+        }
+
+        /* === MODAL === */
+        .modal-box {
+            animation: modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.88) translateY(24px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* === DETAIL VIEW === */
+        .detail-view {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .product-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+        }
+
+        /* === STOCK BADGE === */
+        .stock-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top accent bar -->
+    <div class="gray-header h-1.5 w-full"></div>
+
+    <!-- ===== HEADER ===== -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-5 relative z-10">
+        <div class="flex items-center gap-4">
+
+            <!-- Hamburger Button -->
+            <button
+                id="hamburger-btn"
+                onclick="toggleHamburger()"
+                class="text-3xl text-gray-600 hover:text-gray-900 transition-colors focus:outline-none leading-none select-none"
+                aria-label="Menu">
+                ☰
+            </button>
+
+            <!-- Logo — canto superior esquerdo, ao lado do menu -->
+            <img
+                src="file_000000004fc4622f8c5ec6ef85ccf0f3.png"
+                alt="Neuratec Logo"
+                class="h-10 w-auto object-contain"
+                onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'">
+            <span id="logo-text" style="display:none; font-size:20px; font-weight:700; color:#1f2937; letter-spacing:-0.03em;">
+                Neuratec
+            </span>
+        </div>
+
+    </div>
+
+    <!-- ===== HAMBURGER MENU (filho direto do body — sem stacking context pai) ===== -->
+    <div id="hamburger-menu" class="hamburger-menu hidden">
+        <button onclick="navigateTo('catalog'); toggleHamburger()" id="menu-catalog" class="menu-active">
+            📦 &nbsp;Catálogo de Produtos
+        </button>
+        <a href="documentacao.html" onclick="toggleHamburger()">
+            📄 &nbsp;Documentação
+        </a>
+        <a href="catalogo-avancado.html" onclick="toggleHamburger()">
+            🔬 &nbsp;Catálogo de Produtos (Avançado)
+        </a>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 pb-16 relative z-10">
+
+        <!-- ===== CATÁLOGO PRINCIPAL ===== -->
+        <div id="view-catalog">
+
+            <!-- Grid de produtos -->
+            <div class="product-grid grid grid-cols-3 gap-6 sm:gap-8" id="product-grid">
+                <!-- Gerado via JS -->
+            </div>
+
+            <!-- Gráfico de Vendas -->
+            <div class="mt-12 glass rounded-3xl p-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="text-base font-semibold text-gray-700 flex items-center gap-3">
+                        Frequência de Vendas em Tempo Real
+                        <span class="px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-600 rounded-full flex items-center gap-1.5 animate-pulse">
+                            <span class="w-1.5 h-1.5 bg-slate-500 rounded-full inline-block"></span>
+                            AO VIVO
+                        </span>
+                    </h2>
+                    <button onclick="simulateSale()"
+                            class="text-xs px-5 py-2 bg-white/80 hover:bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 font-medium transition-all">
+                        Simular Nova Venda
+                    </button>
+                </div>
+                <div class="h-72">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== DETALHE DO PRODUTO ===== -->
+        <div id="view-detail" class="hidden">
+            <button onclick="navigateTo('catalog')"
+                    class="mb-8 flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium text-base transition-colors group">
+                <span class="text-xl group-hover:-translate-x-1 transition-transform">←</span>
+                Voltar ao Catálogo
+            </button>
+
+            <div id="detail-content" class="detail-view glass rounded-3xl p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== MODAL DE ESTOQUE ===== -->
+    <div id="stock-modal"
+         class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="modal-box glass max-w-md w-full rounded-3xl p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800" id="modal-product-title">Verificar Estoque</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Consulta em tempo real</p>
+                </div>
+                <button onclick="closeModal()"
+                        class="text-gray-300 hover:text-gray-600 text-3xl leading-none transition-colors">×</button>
+            </div>
+
+            <!-- Seleção de Plataforma -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
+                    Plataforma de Integração
+                </label>
+                <select id="platform-select"
+                        class="w-full glass border border-white/50 rounded-2xl px-4 py-3.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-slate-300 cursor-pointer">
+                    <option value="instagram">📸 &nbsp;Instagram Shopping</option>
+                    <option value="shopify">🛍️ &nbsp;Shopify</option>
+                    <option value="tiktok">🎵 &nbsp;TikTok Shop</option>
+                    <option value="woocommerce">🟣 &nbsp;WooCommerce</option>
+                    <option value="mercadolivre">🟡 &nbsp;Mercado Livre</option>
+                    <option value="custom">⚙️ &nbsp;API Personalizada</option>
+                </select>
+            </div>
+
+            <!-- Quantidade em estoque -->
+            <div class="bg-white/70 rounded-2xl p-6 text-center mb-5 border border-white/50">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-medium">Quantidade em estoque</p>
+                <p id="modal-stock-qty" class="text-6xl font-bold text-slate-700 mt-2 tabular-nums">—</p>
+                <p class="text-xs text-slate-400 mt-1.5" id="modal-sync-time">Aguardando consulta...</p>
+            </div>
+
+            <!-- Botão Consultar -->
+            <button onclick="fetchStockFromBackend()"
+                    id="fetch-btn"
+                    class="w-full bg-gradient-to-r from-slate-700 to-gray-900 hover:from-slate-800 hover:to-black text-white py-4 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-3 shadow-lg">
+                <span id="fetch-btn-text">Consultar Estoque na Plataforma</span>
+                <span id="fetch-btn-icon" class="text-base">↗</span>
+            </button>
+
+            <p id="modal-status" class="text-center text-xs text-gray-400 mt-4 min-h-[18px]">
+                Selecione a plataforma e clique em consultar.
+            </p>
+        </div>
+    </div>
+
+    <script>
+    // =============================================
+    //  PRODUTOS
+    // =============================================
+    const products = [
+        {
+            id: 1,
+            title: "(Decoração) Dispositivo BN1.0",
+            price: "R$ 20.000,00",
+            image: "Dispositivo inicial (visualização).png",
+            badge: "Edição Especial",
+            description: "Dispositivo decorativo de última geração da linha BN, ideal para ambientes premium. Combina estética refinada com tecnologia de ponta Neuratec.",
+            features: [
+                "Conexão 5G integrada",
+                "IA Embarcada Neuratec",
+                "Design Premium exclusivo",
+                "Integração com Neuratec OS",
+                "Acabamento em alumínio anodizado"
+            ],
+            stock: 47
+        },
+        {
+            id: 2,
+            title: "Dispositivo BN1.0",
+            price: "R$ 20.000,00",
+            image: "Dispositivo inicial (visualização).png",
+            badge: "Mais Vendido",
+            description: "Versão padrão do BN1.0 com foco em performance e durabilidade. Projetado para automação residencial e industrial de alto desempenho.",
+            features: [
+                "Alta performance computacional",
+                "Construção robusta IP67",
+                "Instalação plug-and-play",
+                "Atualizações OTA automáticas",
+                "Suporte técnico 24/7"
+            ],
+            stock: 183
+        },
+        {
+            id: 3,
+            title: "Célula Eletrônica",
+            price: "R$ 20.000,00",
+            image: "produto-3.jpg",
+            badge: "Tecnologia",
+            description: "Célula de processamento avançada para sistemas Neuratec. Escalável e de baixíssima latência, ideal para infraestruturas críticas.",
+            features: [
+                "Processamento de baixa latência (<1ms)",
+                "Arquitetura escalável",
+                "Compatível com Neuratec SDK",
+                "Temperatura operacional -40°C a 85°C",
+                "Certificação CE e ANATEL"
+            ],
+            stock: 312
+        }
+    ];
+
+    // =============================================
+    //  RENDER PRODUCTS
+    // =============================================
+    function renderProducts() {
+        const grid = document.getElementById('product-grid');
+        grid.innerHTML = '';
+
+        products.forEach(product => {
+            const imgHTML = `
+                <img
+                    src="${product.image}"
+                    alt="${product.title}"
+                    class="w-full h-full object-contain"
+                    onerror="this.parentElement.innerHTML = \`
+                        <div class='img-placeholder'>
+                            <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'>
+                                <rect x='3' y='3' width='18' height='18' rx='3'/>
+                                <circle cx='8.5' cy='8.5' r='1.5'/>
+                                <path d='M21 15l-5-5L5 21'/>
+                            </svg>
+                            <span>Imagem não disponível</span>
+                        </div>
+                    \`">
+            `;
+
+            const card = document.createElement('div');
+            card.className = 'product-card glass rounded-3xl overflow-hidden border border-white/50';
+            card.setAttribute('onclick', `showDetail(${product.id})`);
+            card.innerHTML = `
+                <div class="product-image-container p-5">
+                    ${imgHTML}
+                </div>
+                <div class="p-5 pt-4">
+                    <span class="stock-badge bg-slate-100 text-slate-600 mb-2">${product.badge}</span>
+                    <h3 class="font-semibold text-base leading-snug mt-1 mb-1">${product.title}</h3>
+                    <p class="text-xl font-bold text-gray-800">${product.price}</p>
+                    <button
+                        onclick="event.stopPropagation(); openStockModal(${product.id})"
+                        class="mt-4 w-full bg-white hover:bg-slate-50 border border-gray-200 hover:border-slate-300 text-gray-700 py-3 rounded-2xl font-medium text-sm transition-all">
+                        Verificar Estoque
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // =============================================
+    //  NAVEGAÇÃO ENTRE VIEWS
+    // =============================================
+    function navigateTo(view) {
+        document.getElementById('view-catalog').classList.add('hidden');
+        document.getElementById('view-detail').classList.add('hidden');
+
+        if (view === 'catalog') {
+            document.getElementById('view-catalog').classList.remove('hidden');
+        } else if (view === 'detail') {
+            document.getElementById('view-detail').classList.remove('hidden');
+            // Reinit animation
+            const dc = document.getElementById('detail-content');
+            dc.style.animation = 'none';
+            dc.offsetHeight; // reflow
+            dc.style.animation = '';
+        }
+    }
+
+    // =============================================
+    //  DETALHE DO PRODUTO
+    // =============================================
+    function showDetail(id) {
+        const product = products.find(p => p.id === id);
+        if (!product) return;
+
+        const featureItems = product.features
+            .map(f => `
+                <li class="flex items-start gap-3 text-sm text-gray-600">
+                    <span class="mt-0.5 w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 flex-shrink-0 text-xs">✓</span>
+                    ${f}
+                </li>
+            `)
+            .join('');
+
+        const imgContent = `
+            <img
+                src="${product.image}"
+                alt="${product.title}"
+                class="w-full rounded-2xl shadow-xl object-contain max-h-[420px]"
+                onerror="this.parentElement.innerHTML = \`
+                    <div class='img-placeholder rounded-2xl' style='height:320px'>
+                        <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' style='width:60px;height:60px'>
+                            <rect x='3' y='3' width='18' height='18' rx='3'/>
+                            <circle cx='8.5' cy='8.5' r='1.5'/>
+                            <path d='M21 15l-5-5L5 21'/>
+                        </svg>
+                        <span style='font-size:15px'>Imagem não disponível</span>
+                    </div>
+                \`">
+        `;
+
+        document.getElementById('detail-content').innerHTML = `
+            <div class="flex flex-col gap-6">
+                <div class="product-image-container p-8 bg-gray-50/80 rounded-2xl" style="aspect-ratio:1/1">
+                    ${imgContent}
+                </div>
+                <div class="flex gap-3">
+                    <span class="stock-badge bg-slate-100 text-slate-600">${product.badge}</span>
+                    <span class="stock-badge bg-emerald-50 text-emerald-700">
+                        ${product.stock} unidades disponíveis
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <h1 class="text-3xl font-bold leading-tight text-gray-900">${product.title}</h1>
+                <p class="text-3xl font-bold text-slate-700 mt-2">${product.price}</p>
+
+                <p class="mt-6 text-gray-600 leading-relaxed text-sm">${product.description}</p>
+
+                <div class="mt-8">
+                    <h3 class="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-4">
+                        Destaques do Produto
+                    </h3>
+                    <ul class="space-y-3">${featureItems}</ul>
+                </div>
+
+                <div class="mt-auto pt-10 flex flex-col gap-3">
+                    <button
+                        onclick="openStockModal(${product.id})"
+                        class="w-full bg-gradient-to-r from-slate-700 to-gray-900 hover:from-slate-800 hover:to-black text-white py-4 rounded-2xl font-semibold text-sm transition-all shadow-lg">
+                        Verificar Estoque em Tempo Real ↗
+                    </button>
+                    <button
+                        onclick="navigateTo('catalog')"
+                        class="w-full bg-white/80 hover:bg-white border border-gray-200 text-gray-600 hover:text-gray-900 py-3 rounded-2xl font-medium text-sm transition-all">
+                        ← Voltar ao Catálogo
+                    </button>
+                </div>
+            </div>
+        `;
+
+        navigateTo('detail');
+    }
+
+    // =============================================
+    //  MODAL DE ESTOQUE
+    // =============================================
+    let currentProductId = null;
+
+    function openStockModal(id) {
+        currentProductId = id;
+        const product = products.find(p => p.id === id);
+        if (!product) return;
+
+        document.getElementById('modal-product-title').textContent = product.title;
+        document.getElementById('modal-stock-qty').textContent = '—';
+        document.getElementById('modal-sync-time').textContent = 'Aguardando consulta...';
+        document.getElementById('modal-status').textContent = 'Selecione a plataforma e clique em consultar.';
+        document.getElementById('modal-status').className = 'text-center text-xs text-gray-400 mt-4 min-h-[18px]';
+        resetFetchBtn();
+
+        const modal = document.getElementById('stock-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('stock-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        currentProductId = null;
+    }
+
+    function resetFetchBtn() {
+        const btn = document.getElementById('fetch-btn');
+        const txt = document.getElementById('fetch-btn-text');
+        const icon = document.getElementById('fetch-btn-icon');
+        btn.disabled = false;
+        btn.classList.remove('opacity-60', 'cursor-not-allowed');
+        txt.textContent = 'Consultar Estoque na Plataforma';
+        icon.textContent = '↗';
+    }
+
+    const platformNames = {
+        instagram:     'Instagram Shopping',
+        shopify:       'Shopify',
+        tiktok:        'TikTok Shop',
+        woocommerce:   'WooCommerce',
+        mercadolivre:  'Mercado Livre',
+        custom:        'API Personalizada'
+    };
+
+    async function fetchStockFromBackend() {
+        const platform = document.getElementById('platform-select').value;
+        const statusEl = document.getElementById('modal-status');
+        const qtyEl = document.getElementById('modal-stock-qty');
+        const syncEl = document.getElementById('modal-sync-time');
+        const btn = document.getElementById('fetch-btn');
+        const txt = document.getElementById('fetch-btn-text');
+        const icon = document.getElementById('fetch-btn-icon');
+
+        // Loading state
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'cursor-not-allowed');
+        txt.textContent = `Consultando ${platformNames[platform]}...`;
+        icon.textContent = '⏳';
+        qtyEl.textContent = '...';
+        statusEl.textContent = `Conectando à API do ${platformNames[platform]}...`;
+        statusEl.className = 'text-center text-xs text-gray-400 mt-4 min-h-[18px]';
+
+        await new Promise(r => setTimeout(r, 800));
+        statusEl.textContent = 'Autenticando credenciais...';
+
+        await new Promise(r => setTimeout(r, 700));
+        statusEl.textContent = 'Consultando estoque em tempo real...';
+
+        await new Promise(r => setTimeout(r, 600));
+
+        // Simulate response
+        const product = products.find(p => p.id === currentProductId);
+        const baseStock = product ? product.stock : 200;
+        const stock = Math.max(0, baseStock + Math.floor((Math.random() - 0.5) * 30));
+
+        qtyEl.textContent = stock;
+        const now = new Date();
+        syncEl.textContent = `Sincronizado via ${platformNames[platform]} • ${now.toLocaleTimeString('pt-BR')}`;
+        statusEl.textContent = `✅ Estoque atualizado com sucesso via ${platformNames[platform]}`;
+        statusEl.className = 'text-center text-xs text-emerald-600 mt-4 min-h-[18px] font-medium';
+
+        txt.textContent = 'Atualizar Novamente';
+        icon.textContent = '↻';
+        btn.disabled = false;
+        btn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+
+    // =============================================
+    //  GRÁFICO
+    // =============================================
+    let salesChart;
+    const salesData = {
+        labels: Array.from({ length: 12 }, (_, i) => `${i + 1}s`),
+        values: [12, 19, 25, 18, 31, 27, 35, 42, 38, 45, 51, 48]
+    };
+
+    function createSalesChart() {
+        const ctx = document.getElementById('salesChart');
+        salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [...salesData.labels],
+                datasets: [{
+                    label: 'Vendas por minuto',
+                    data: [...salesData.values],
+                    borderColor: '#6b7280',
+                    backgroundColor: 'rgba(107,114,128,0.12)',
+                    borderWidth: 2.5,
+                    tension: 0.45,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#6b7280',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+                    x: { grid: { display: false } }
+                },
+                animation: { duration: 400 }
+            }
+        });
+    }
+
+    function pushSaleData(val) {
+        salesData.values.push(val);
+        salesData.values.shift();
+        salesData.labels.push((salesData.labels.length + 13) + 's');
+        salesData.labels.shift();
+        if (salesChart) {
+            salesChart.data.labels = [...salesData.labels];
+            salesChart.data.datasets[0].data = [...salesData.values];
+            salesChart.update('none');
+        }
+    }
+
+    function startLiveSalesUpdate() {
+        setInterval(() => pushSaleData(Math.floor(Math.random() * 18) + 35), 3000);
+    }
+
+    function simulateSale() {
+        pushSaleData(Math.floor(Math.random() * 30) + 55);
+        if (salesChart) salesChart.update();
+    }
+
+    // =============================================
+    //  MENU HAMBURGER
+    // =============================================
+    function toggleHamburger() {
+        const menu = document.getElementById('hamburger-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', function (e) {
+        const menu = document.getElementById('hamburger-menu');
+        const btn = document.getElementById('hamburger-btn');
+        if (!menu.contains(e.target) && !btn.contains(e.target)) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    // Fechar modal ao clicar no overlay
+    document.getElementById('stock-modal').addEventListener('click', function (e) {
+        if (e.target === this) closeModal();
+    });
+
+    // =============================================
+    //  INIT
+    // =============================================
+    window.onload = function () {
+        renderProducts();
+        createSalesChart();
+        startLiveSalesUpdate();
+    };
+    </script>
+    <!-- ===== FOOTER ===== -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-6 text-center relative z-10">
+        <p style="font-family: serif; color: #6b7280; font-size: 14px;">Neuratec</p>
+    </div>
+
+</body>
+</html>
