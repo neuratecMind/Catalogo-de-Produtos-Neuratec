@@ -316,7 +316,7 @@
             id: 1,
             title: "(Decoração) Dispositivo BN1.0",
             price: "R$ 20.000,00",
-            image: "Dispositivo inicial (visualização).png",
+            image: "Neuratec Mind Product #2.png",
             badge: "Edição Especial",
             description: "Dispositivo decorativo de última geração da linha BN, ideal para ambientes premium. Combina estética refinada com tecnologia de ponta Neuratec.",
             features: [
@@ -362,6 +362,29 @@
         }
     ];
 
+    // Tenta extensões alternativas antes de exibir placeholder
+    const IMG_EXTS = ['png', 'jpg', 'jpeg', 'webp'];
+    function imgFallback(el, baseName, tried) {
+        tried = tried || [];
+        const base = baseName.replace(/\.[^.]+$/, ''); // remove extensão atual
+        const next = IMG_EXTS.find(e => !tried.includes(e));
+        if (next) {
+            tried.push(next);
+            el.onerror = () => imgFallback(el, base, tried);
+            el.src = base + '.' + next;
+        } else {
+            el.parentElement.innerHTML = `
+                <div class='img-placeholder'>
+                    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'>
+                        <rect x='3' y='3' width='18' height='18' rx='3'/>
+                        <circle cx='8.5' cy='8.5' r='1.5'/>
+                        <path d='M21 15l-5-5L5 21'/>
+                    </svg>
+                    <span>Imagem não disponível</span>
+                </div>`;
+        }
+    }
+
     // =============================================
     //  RENDER PRODUCTS
     // =============================================
@@ -377,16 +400,7 @@
                     loading="eager"
                     decoding="sync"
                     class="w-full h-full object-contain"
-                    onerror="this.parentElement.innerHTML = \`
-                        <div class='img-placeholder'>
-                            <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5'>
-                                <rect x='3' y='3' width='18' height='18' rx='3'/>
-                                <circle cx='8.5' cy='8.5' r='1.5'/>
-                                <path d='M21 15l-5-5L5 21'/>
-                            </svg>
-                            <span>Imagem não disponível</span>
-                        </div>
-                    \`">
+                    onerror="imgFallback(this, '${product.image}', [])">
             `;
 
             const card = document.createElement('div');
@@ -453,16 +467,7 @@
                 loading="eager"
                 decoding="sync"
                 class="w-full rounded-2xl shadow-xl object-contain max-h-[420px]"
-                onerror="this.parentElement.innerHTML = \`
-                    <div class='img-placeholder rounded-2xl' style='height:320px'>
-                        <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' style='width:60px;height:60px'>
-                            <rect x='3' y='3' width='18' height='18' rx='3'/>
-                            <circle cx='8.5' cy='8.5' r='1.5'/>
-                            <path d='M21 15l-5-5L5 21'/>
-                        </svg>
-                        <span style='font-size:15px'>Imagem não disponível</span>
-                    </div>
-                \`">
+                onerror="imgFallback(this, '${product.image}', [])">
         `;
 
         document.getElementById('detail-content').innerHTML = `
