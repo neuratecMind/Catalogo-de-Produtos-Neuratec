@@ -1,0 +1,1 @@
+ - Autores originais: Miguel (@dialNeura) & Neuratec Mind / Neura Mindtec (Ions) (@neuratecMind).
